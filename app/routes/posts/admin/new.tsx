@@ -13,6 +13,8 @@ type ActionData = {
 export const action: ActionFunction = async ({request}) => {
   const formData = await request.formData();
 
+  console.log(process)
+
   const title = formData.get('title');
   const slug = formData.get('slug')
   const markdown = formData.get('markdown')
