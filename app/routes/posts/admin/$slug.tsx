@@ -1,7 +1,7 @@
 import { Form, useActionData, useLoaderData, useTransition } from "@remix-run/react";
 import { redirect, json } from "@remix-run/node";
 import type { ActionFunction, LoaderFunction } from "@remix-run/node";
-import { createPost, getPost, updatePost } from "~/models/post.server";
+import { createPost, deletePost, getPost, updatePost } from "~/models/post.server";
 import invariant from "tiny-invariant";
 import { requireAdminUser } from "~/session.server";
 
@@ -23,6 +23,12 @@ type ActionData = {
 export const action: ActionFunction = async ({request, params}) => {
   await requireAdminUser(request)
   const formData = await request.formData();
+  const intent = formData.get("intent")
+
+  if (intent === "delete") {
+    await deletePost(params.slug);
+    return redirect("/posts/admin");
+  }
 
   console.log(process)
 
@@ -63,6 +69,7 @@ export default function NewPostRoute() {
   const transition = useTransition()
   const isCreating = transition.submission?.formData.get('intent') === 'create'
   const isUpdating = transition.submission?.formData.get('intent') === 'update'
+  const isDeleting = transition.submission?.formData.get('intent') === 'delete'
   const isNewPost = !data.post
 
   return (
@@ -96,7 +103,17 @@ export default function NewPostRoute() {
             defaultValue={data.post?.markdown} />
         </label>
       </p>
-      <p className="text-right">
+      <div className="flex justify-end gap-4">
+        {isNewPost ? null : (
+          <button
+            type="submit" 
+            name="intent"
+            value="delete"
+            className="rounded bg-red-500 px-4 text-white disabled:bg-red-200"
+            disabled={isDeleting}>
+            {isDeleting ? 'Deleting...' : 'Delete'}
+          </button>
+        )}
         <button
           type="submit" 
           name="intent"
@@ -106,7 +123,7 @@ export default function NewPostRoute() {
           {isNewPost ? (isCreating ? 'Creating...' : 'Create Post') : null}
           {isNewPost ? null : isUpdating ? 'Updating...' : 'Update'}
         </button>
-      </p>
+      </div>
     </Form>
   )
 }
