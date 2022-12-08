@@ -115,8 +115,8 @@ jobs:
           start: npm run start:mocks
           wait-on: "http://localhost:8811"
         env:
-          PORT: "8811"
           ADMIN_EMAIL: "admin@mail.com"
+          PORT: "8811"
 
   build:
     name: 🐳 Build
