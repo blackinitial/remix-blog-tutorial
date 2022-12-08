@@ -21,7 +21,8 @@ export const loader: LoaderFunction = async ({request, params}) => {
   return json<LoaderData>({post})
 }
 
-type ActionData = {
+type ActionData =
+| {
   title: null | string
   slug: null | string
   markdown: null | string
@@ -29,6 +30,7 @@ type ActionData = {
 
 export const action: ActionFunction = async ({request, params}) => {
   await requireAdminUser(request)
+  invariant(params.slug, "slug is required")
   const formData = await request.formData();
   const intent = formData.get("intent")
 
